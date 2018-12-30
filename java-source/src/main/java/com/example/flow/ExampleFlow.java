@@ -188,6 +188,7 @@ public class ExampleFlow {
         // checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call()
         // function.
         private final ProgressTracker progressTracker = new ProgressTracker(
+                GENERATING_CANCEL_QUERY_TRANSACTION ,
                 GENERATING_CANCEL_TRANSACTION,
                 VERIFYING_CANCEL_TRANSACTION,
                 SIGNING_CANCEL_TRANSACTION,
@@ -226,6 +227,7 @@ public class ExampleFlow {
             //get the state from the vault
             StateAndRef<IOUState> inputStateAndRef = iouStates.get(0);
 
+            System.out.println(" Received iouState= " +iouStates.get(0).toString());
 
             // Stage 2.
             progressTracker.setCurrentStep(GENERATING_CANCEL_TRANSACTION);

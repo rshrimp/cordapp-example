@@ -37,8 +37,8 @@ public class IOUContract implements Contract {
 
         //get the command issued - it has to be either create or destroy type
         Command command = tx.getCommand(0);
-        if(!(command.getValue() instanceof Commands.Create) || !(command.getValue() instanceof Commands.Destroy))
-            throw new IllegalArgumentException(" Command must be of Type Create or Destroy");
+//        if(!(command.getValue() instanceof Commands.Create) || !(command.getValue() instanceof Commands.Destroy))
+//            throw new IllegalArgumentException(" Command must be of Type Create or Destroy");
 
         if ( command.getValue() instanceof Commands.Create) {
             final CommandWithParties<Commands.Create> createCommand = requireSingleCommand(tx.getCommands(), Commands.Create.class);
@@ -79,7 +79,7 @@ public class IOUContract implements Contract {
 
                  //signer constraints (both lender and borrower signatures are required.
                 Party iouLender = inputIOU.getLender();
-                Party iouBorrower = inputIOU.getBorrower();
+               // Party iouBorrower = inputIOU.getBorrower();
                 require.using("IOU Lender must be one of the signers for closing/destroying IOUState",
                         requiredSigners.contains(iouLender.getOwningKey()));
 
