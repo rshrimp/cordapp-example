@@ -83,8 +83,9 @@ public class IOUContract implements Contract {
                 require.using("IOU Lender must be one of the signers for closing/destroying IOUState",
                         requiredSigners.contains(iouLender.getOwningKey()));
 
-                require.using("IOU Borrower must be one of the signers for closing/destroying IOUState",
-                        requiredSigners.contains(iouBorrower.getOwningKey()));
+                //borrower does not need to sign the transaction
+                //require.using("IOU Borrower must be one of the signers for closing/destroying IOUState",
+                  //      requiredSigners.contains(iouBorrower.getOwningKey()));
 
 
                     return null;
