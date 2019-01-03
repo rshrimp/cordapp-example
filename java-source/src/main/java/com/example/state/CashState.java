@@ -1,11 +1,17 @@
 package com.example.state;
 
 
+import com.google.common.collect.ImmutableList;
 import net.corda.core.contracts.Amount;
 import net.corda.core.contracts.LinearState;
 import net.corda.core.contracts.UniqueIdentifier;
 import net.corda.core.crypto.NullKeys;
 import net.corda.core.identity.AbstractParty;
+import net.corda.core.schemas.MappedSchema;
+import net.corda.core.schemas.PersistentState;
+import net.corda.core.schemas.QueryableState;
+import org.jetbrains.annotations.NotNull;
+import com.example.schema.MyCashSchema1;
 
 import java.security.PublicKey;
 import java.util.*;
@@ -16,7 +22,7 @@ import static java.util.stream.Collectors.toSet;
 // *********
 // * State *
 // *********
-public class CashState implements LinearState {
+public class CashState implements LinearState, QueryableState {
 
     private final Amount<Currency> issuedAmount;
     private final AbstractParty bank;
@@ -111,4 +117,23 @@ public class CashState implements LinearState {
         return String.format("CashState(amount=%s, lender=%s, borrower=%s, linearId=%s)", issuedAmount, bank, borrower, linearId);
     }
 
+    @NotNull
+    @Override
+    public PersistentState generateMappedObject(@NotNull MappedSchema schema) {
+        if (schema instanceof MyCashSchema1) {
+            return new MyCashSchema1.PersistentCashState(
+                    this.bank.toString(),
+                    this.borrower.toString(),
+                    this.issuedAmount,
+                    this.linearId.getId());
+        } else {
+            throw new IllegalArgumentException("Unrecognised schema $schema");
+        }
+    }
+
+    @NotNull
+    @Override
+    public Iterable<MappedSchema> supportedSchemas() {
+        return ImmutableList.of(new MyCashSchema1());
+    }
 }

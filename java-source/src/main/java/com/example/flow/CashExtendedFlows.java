@@ -6,7 +6,6 @@ import com.example.contract.CashContract;
 import com.example.state.CashState;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import net.corda.confidential.IdentitySyncFlow;
 import net.corda.core.contracts.Amount;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.contracts.UniqueIdentifier;
@@ -17,11 +16,8 @@ import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 
 import java.security.PublicKey;
-import java.time.Duration;
 import java.util.Currency;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class CashExtendedFlows {
     /* --------------------- IssueCashFlow  ------------------------------------------------------------------------- */
