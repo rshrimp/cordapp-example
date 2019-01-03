@@ -26,12 +26,12 @@ import static net.corda.core.contracts.ContractsDSL.requireThat;
 /**
  * This flow allows two parties (the [Initiator] and the [Acceptor]) to come to an agreement about the IOU encapsulated
  * within an [IOUState].
- *
+ * <p>
  * In our simple example, the [Acceptor] always accepts a valid IOU.
- *
+ * <p>
  * These flows have deliberately been implemented by using only the call() method for ease of understanding. In
  * practice we would recommend splitting up the various stages of the flow into sub-routines.
- *
+ * <p>
  * All methods called within the [FlowLogic] sub-class need to be annotated with the @Suspendable annotation.
  */
 public class ExampleFlow {
@@ -126,8 +126,10 @@ public class ExampleFlow {
             return subFlow(new FinalityFlow(fullySignedTx));
         }
     }
+
     /* --------------------- Acceptor Flow ------------------------------------------------------------------------- */
-    @InitiatedBy(Initiator.class)
+    @StartableByRPC
+    @InitiatingFlow
     public static class Acceptor extends FlowLogic<SignedTransaction> {
 
         private final FlowSession otherPartyFlow;
@@ -166,35 +168,31 @@ public class ExampleFlow {
     @StartableByRPC
     public static class Destroyer extends FlowLogic<SignedTransaction> {
 
-        public UniqueIdentifier linearId;
-
-        public Destroyer(UniqueIdentifier linearId) {
-            this.linearId = linearId;
-        }
-
         private final Step GENERATING_CANCEL_QUERY_TRANSACTION = new Step("Generating cancel query transaction based on existing IOU.");
         private final Step GENERATING_CANCEL_TRANSACTION = new Step("Generating cancel transaction based on existing IOU.");
         private final Step VERIFYING_CANCEL_TRANSACTION = new Step("Verifying cancel contract constraints.");
         private final Step SIGNING_CANCEL_TRANSACTION = new Step("Signing cancel transaction with our private key.");
-
         private final Step FINALISING_CANCEL_TRANSACTION = new Step("Obtaining notary signature and recording transaction for cancel transaction.") {
             @Override
             public ProgressTracker childProgressTracker() {
                 return FinalityFlow.Companion.tracker();
             }
         };
-
         // The progress tracker checkpoints each stage of the flow and outputs the specified messages when each
         // checkpoint is reached in the code. See the 'progressTracker.currentStep' expressions within the call()
         // function.
         private final ProgressTracker progressTracker = new ProgressTracker(
-                GENERATING_CANCEL_QUERY_TRANSACTION ,
+                GENERATING_CANCEL_QUERY_TRANSACTION,
                 GENERATING_CANCEL_TRANSACTION,
                 VERIFYING_CANCEL_TRANSACTION,
                 SIGNING_CANCEL_TRANSACTION,
                 FINALISING_CANCEL_TRANSACTION
         );
+        public UniqueIdentifier linearId;
 
+        public Destroyer(UniqueIdentifier linearId) {
+            this.linearId = linearId;
+        }
 
         @Override
         public ProgressTracker getProgressTracker() {
@@ -227,7 +225,7 @@ public class ExampleFlow {
             //get the state from the vault
             StateAndRef<IOUState> inputStateAndRef = iouStates.get(0);
 
-            System.out.println(" Received iouState= " +iouStates.get(0).toString());
+            getLogger().debug(" Received iouState= " + iouStates.get(0).toString());
 
             // Stage 2.
             progressTracker.setCurrentStep(GENERATING_CANCEL_TRANSACTION);

@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * The state object recording IOU agreements between two parties.
- *
+ * <p>
  * A state must implement [ContractState] or one of its descendants.
  */
 public class IOUState implements LinearState, QueryableState {
@@ -25,30 +25,44 @@ public class IOUState implements LinearState, QueryableState {
     private final UniqueIdentifier linearId;
 
     /**
-     * @param value the value of the IOU.
-     * @param lender the party issuing the IOU.
+     * @param value    the value of the IOU.
+     * @param lender   the party issuing the IOU.
      * @param borrower the party receiving and approving the IOU.
      */
     public IOUState(Integer value,
                     Party lender,
                     Party borrower,
-                    UniqueIdentifier linearId)
-    {
+                    UniqueIdentifier linearId) {
         this.value = value;
         this.lender = lender;
         this.borrower = borrower;
         this.linearId = linearId;
     }
 
-    public Integer getValue() { return value; }
-    public Party getLender() { return lender; }
-    public Party getBorrower() { return borrower; }
-    @Override public UniqueIdentifier getLinearId() { return linearId; }
-    @Override public List<AbstractParty> getParticipants() {
+    public Integer getValue() {
+        return value;
+    }
+
+    public Party getLender() {
+        return lender;
+    }
+
+    public Party getBorrower() {
+        return borrower;
+    }
+
+    @Override
+    public UniqueIdentifier getLinearId() {
+        return linearId;
+    }
+
+    @Override
+    public List<AbstractParty> getParticipants() {
         return Arrays.asList(lender, borrower);
     }
 
-    @Override public PersistentState generateMappedObject(MappedSchema schema) {
+    @Override
+    public PersistentState generateMappedObject(MappedSchema schema) {
         if (schema instanceof IOUSchemaV1) {
             return new IOUSchemaV1.PersistentIOU(
                     this.lender.getName().toString(),
@@ -60,7 +74,8 @@ public class IOUState implements LinearState, QueryableState {
         }
     }
 
-    @Override public Iterable<MappedSchema> supportedSchemas() {
+    @Override
+    public Iterable<MappedSchema> supportedSchemas() {
         return ImmutableList.of(new IOUSchemaV1());
     }
 

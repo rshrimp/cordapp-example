@@ -15,14 +15,14 @@ import static net.corda.core.contracts.ContractsDSL.requireThat;
 
 /**
  * A implementation of a basic smart contract in Corda.
- *
+ * <p>
  * This contract enforces rules regarding the creation of a valid [IOUState], which in turn encapsulates an [IOU].
- *
+ * <p>
  * For a new [IOU] to be issued onto the ledger, a transaction is required which takes:
  * - Zero input states.
  * - One output state: the new [IOU].
  * - An Create() command with the public keys of both the lender and the borrower.
- *
+ * <p>
  * All contracts must sub-class the [Contract] interface.
  */
 public class IOUContract implements Contract {
@@ -40,7 +40,7 @@ public class IOUContract implements Contract {
 //        if(!(command.getValue() instanceof Commands.Create) || !(command.getValue() instanceof Commands.Destroy))
 //            throw new IllegalArgumentException(" Command must be of Type Create or Destroy");
 
-        if ( command.getValue() instanceof Commands.Create) {
+        if (command.getValue() instanceof Commands.Create) {
             final CommandWithParties<Commands.Create> createCommand = requireSingleCommand(tx.getCommands(), Commands.Create.class);
             requireThat(require -> {
                 // Generic constraints around the IOU transaction.
@@ -62,7 +62,7 @@ public class IOUContract implements Contract {
             });
         }
 
-        if ( command.getValue() instanceof Commands.Destroy) {
+        if (command.getValue() instanceof Commands.Destroy) {
             final CommandWithParties<Commands.Destroy> destroyCommand = requireSingleCommand(tx.getCommands(), Commands.Destroy.class);
             List<PublicKey> requiredSigners = command.getSigners();
             requireThat(require -> {
@@ -71,27 +71,26 @@ public class IOUContract implements Contract {
                         tx.getInputs().size() == 1);
                 require.using("No output state should be created.",
                         tx.getOutputs().isEmpty());
-                require.using( "Input must be IOUState type",
+                require.using("Input must be IOUState type",
                         tx.getInput(0) instanceof IOUState);
 
                 ContractState input = tx.getInput(0);
                 IOUState inputIOU = (IOUState) input;
 
-                 //signer constraints (both lender and borrower signatures are required.
+                //signer constraints (both lender and borrower signatures are required.
                 Party iouLender = inputIOU.getLender();
-               // Party iouBorrower = inputIOU.getBorrower();
+                // Party iouBorrower = inputIOU.getBorrower();
                 require.using("IOU Lender must be one of the signers for closing/destroying IOUState",
                         requiredSigners.contains(iouLender.getOwningKey()));
 
                 //borrower does not need to sign the transaction
                 //require.using("IOU Borrower must be one of the signers for closing/destroying IOUState",
-                  //      requiredSigners.contains(iouBorrower.getOwningKey()));
+                //      requiredSigners.contains(iouBorrower.getOwningKey()));
 
 
-                    return null;
+                return null;
             });
         }
-
 
 
     }
@@ -100,12 +99,18 @@ public class IOUContract implements Contract {
      * This contract only implements  command, Create.
      */
     public interface Commands extends CommandData {
-        class Create implements Commands {}
+        class Create implements Commands {
+        }
+
         //add command to Destroy IOU after it is repaid
-        class Destroy implements Commands {}
+        class Destroy implements Commands {
+        }
     }
 
-    public static class Create implements CommandData {}
-    public static class Destroy implements CommandData {}
+    public static class Create implements CommandData {
+    }
+
+    public static class Destroy implements CommandData {
+    }
 
 }
