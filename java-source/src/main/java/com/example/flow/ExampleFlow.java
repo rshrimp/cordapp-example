@@ -128,7 +128,7 @@ public class ExampleFlow {
     }
 
     /* --------------------- Acceptor Flow ------------------------------------------------------------------------- */
-    @InitiatedBy(Initiator.class)
+    @InitiatedBy(Initiator.class) //this flow is called by initiator
     public static class Acceptor extends FlowLogic<SignedTransaction> {
 
         private final FlowSession otherPartyFlow;

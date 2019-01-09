@@ -76,7 +76,7 @@ public class IOUContract implements Contract {
                         destroyCommand.getSigners().contains(inputIOU.getLender().getOwningKey()));
                 return null;
             });
-        } else {
+        } else { //this will catch any invalid command passed.
             throw new IllegalArgumentException(" Unknown command is provided...");
         }
 

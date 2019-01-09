@@ -30,7 +30,7 @@ public class IOUContractTests {
             return null;
         }));
     }
-    /* -------START--------------------- added for IOU destroy command --------------------------------------------------------------*/
+    /* -------START--------------------- added for IOU destroy command to close IOU------------------------------------------------------*/
     @Test
     public void transactionMustIncludeDestroyCommand() {
         ledger(ledgerServices, (ledger -> {
