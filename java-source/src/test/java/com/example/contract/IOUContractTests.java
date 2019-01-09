@@ -30,6 +30,50 @@ public class IOUContractTests {
             return null;
         }));
     }
+    /* -------START--------------------- added for IOU destroy command --------------------------------------------------------------*/
+    @Test
+    public void transactionMustIncludeDestroyCommand() {
+        ledger(ledgerServices, (ledger -> {
+            ledger.transaction(tx -> {
+                tx.input(IOU_CONTRACT_ID, new IOUState(iouValue, miniCorp.getParty(), megaCorp.getParty(), new UniqueIdentifier()));
+                tx.fails();
+                tx.command(ImmutableList.of(megaCorp.getPublicKey(), miniCorp.getPublicKey()), new IOUContract.Commands.Destroy());
+                tx.verifies();
+                return null;
+            });
+            return null;
+        }));
+    }
+
+    @Test
+    public void destroyTransactionMustHaveZeroOutput() {
+        ledger(ledgerServices, (ledger -> {
+            ledger.transaction(tx -> {
+                tx.input(IOU_CONTRACT_ID, new IOUState(iouValue, miniCorp.getParty(), megaCorp.getParty(), new UniqueIdentifier()));
+                tx.output(IOU_CONTRACT_ID, new IOUState(iouValue, miniCorp.getParty(), megaCorp.getParty(), new UniqueIdentifier()));
+                tx.command(ImmutableList.of(megaCorp.getPublicKey(), miniCorp.getPublicKey()), new IOUContract.Commands.Destroy());
+                tx.failsWith("No output state should be created.");
+                return null;
+            });
+            return null;
+        }));
+    }
+
+    @Test
+    public void lenderIsNotDestroyerOfIOU() {
+        ledger(ledgerServices, (ledger -> {
+            ledger.transaction(tx -> {
+                IOUState input = new IOUState(iouValue, miniCorp.getParty(), megaCorp.getParty(), new UniqueIdentifier());
+                tx.input(IOU_CONTRACT_ID, input);
+                tx.command(ImmutableList.of( megaCorp.getPublicKey()), new IOUContract.Commands.Destroy());
+                tx.fails();
+                return null;
+            });
+            return null;
+        }));
+    }
+
+    /* -------END--------------------- added for IOU destroy command --------------------------------------------------------------*/
 
     @Test
     public void transactionMustHaveNoInputs() {
@@ -97,6 +141,10 @@ public class IOUContractTests {
             return null;
         }));
     }
+
+
+
+
 
     @Test
     public void cannotCreateNegativeValueIOUs() {

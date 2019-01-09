@@ -6,8 +6,6 @@ import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
 import net.corda.core.transactions.LedgerTransaction;
 
-import java.security.PublicKey;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static net.corda.core.contracts.ContractsDSL.requireSingleCommand;
@@ -37,8 +35,6 @@ public class IOUContract implements Contract {
 
         //get the command issued - it has to be either create or destroy type
         Command command = tx.getCommand(0);
-//        if(!(command.getValue() instanceof Commands.Create) || !(command.getValue() instanceof Commands.Destroy))
-//            throw new IllegalArgumentException(" Command must be of Type Create or Destroy");
 
         if (command.getValue() instanceof Commands.Create) {
             final CommandWithParties<Commands.Create> createCommand = requireSingleCommand(tx.getCommands(), Commands.Create.class);
@@ -60,11 +56,9 @@ public class IOUContract implements Contract {
 
                 return null;
             });
-        }
-
-        if (command.getValue() instanceof Commands.Destroy) {
+        } else if (command.getValue() instanceof Commands.Destroy) {
             final CommandWithParties<Commands.Destroy> destroyCommand = requireSingleCommand(tx.getCommands(), Commands.Destroy.class);
-            List<PublicKey> requiredSigners = command.getSigners();
+            //List<PublicKey> requiredSigners = command.getSigners();
             requireThat(require -> {
                 // Generic constraints around the IOU transaction.
                 require.using("Only one input should be consumed when destroying/closing an IOU.",
@@ -77,19 +71,13 @@ public class IOUContract implements Contract {
                 ContractState input = tx.getInput(0);
                 IOUState inputIOU = (IOUState) input;
 
-                //signer constraints (both lender and borrower signatures are required.
                 Party iouLender = inputIOU.getLender();
-                // Party iouBorrower = inputIOU.getBorrower();
-                require.using("IOU Lender must be one of the signers for closing/destroying IOUState",
-                        requiredSigners.contains(iouLender.getOwningKey()));
-
-                //borrower does not need to sign the transaction
-                //require.using("IOU Borrower must be one of the signers for closing/destroying IOUState",
-                //      requiredSigners.contains(iouBorrower.getOwningKey()));
-
-
+                require.using("IOU Lender must be  the signer for closing/destroying IOUState",
+                        destroyCommand.getSigners().contains(inputIOU.getLender().getOwningKey()));
                 return null;
             });
+        } else {
+            throw new IllegalArgumentException(" Unknown command is provided...");
         }
 
 
@@ -107,10 +95,5 @@ public class IOUContract implements Contract {
         }
     }
 
-    public static class Create implements CommandData {
-    }
-
-    public static class Destroy implements CommandData {
-    }
 
 }

@@ -128,8 +128,7 @@ public class ExampleFlow {
     }
 
     /* --------------------- Acceptor Flow ------------------------------------------------------------------------- */
-    @StartableByRPC
-    @InitiatingFlow
+    @InitiatedBy(Initiator.class)
     public static class Acceptor extends FlowLogic<SignedTransaction> {
 
         private final FlowSession otherPartyFlow;
@@ -225,7 +224,6 @@ public class ExampleFlow {
             //get the state from the vault
             StateAndRef<IOUState> inputStateAndRef = iouStates.get(0);
 
-            getLogger().debug(" Received iouState= " + iouStates.get(0).toString());
 
             // Stage 2.
             progressTracker.setCurrentStep(GENERATING_CANCEL_TRANSACTION);
